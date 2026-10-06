@@ -16,9 +16,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Export restrooms from the OpenStreetMap planet (QLever)
         run: |
-          curl -sfL -m 3000 -H "Accept: text/tab-separated-values" \
+          code=$(curl -sL -m 3000 -A "ThroneScore-restroom-tiles/1.0 (+https://thronescore.app)" \
+            -H "Accept: text/tab-separated-values" \
             --data-urlencode "query@tools/qlever_restrooms.rq" \
-            -o /tmp/restrooms.tsv https://qlever.dev/api/osm-planet
+            -o /tmp/restrooms.tsv -w "%{http_code}" https://qlever.dev/api/osm-planet)
+          echo "http=$code"
+          if [ "$code" != "200" ]; then head -c 1500 /tmp/restrooms.tsv; exit 1; fi
           rows=$(wc -l < /tmp/restrooms.tsv)
           echo "rows=$rows"
           # Guard against a truncated or failed export wiping the dataset.
