@@ -1,0 +1,41 @@
+name: Refresh restroom tiles
+
+on:
+  schedule:
+    - cron: '17 6 * * 1' # Mondays 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export restrooms from the OpenStreetMap planet (QLever)
+        run: |
+          curl -sfL -m 3000 -H "Accept: text/tab-separated-values" \
+            --data-urlencode "query@tools/qlever_restrooms.rq" \
+            -o /tmp/restrooms.tsv https://qlever.dev/api/osm-planet
+          rows=$(wc -l < /tmp/restrooms.tsv)
+          echo "rows=$rows"
+          # Guard against a truncated or failed export wiping the dataset.
+          test "$rows" -gt 500000
+      - name: Build tiles
+        run: python3 tools/build_tiles.py --qlever /tmp/restrooms.tsv
+      - name: Replace v1
+        run: |
+          rm -rf v1/tiles
+          mv tools/out/tiles v1/tiles
+          mv tools/out/index.json v1/index.json
+          rm -rf tools/out
+      - name: Commit
+        run: |
+          git config user.name "throne-score-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A v1
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Refresh restroom tiles ($(date -u +%Y-%m-%d))"
+          git push

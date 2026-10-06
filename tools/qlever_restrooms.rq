@@ -1,0 +1,14 @@
+PREFIX osmkey: <https://www.openstreetmap.org/wiki/Key:>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+SELECT ?osm ?wkt ?amenity ?toilets ?name ?brand ?access ?taccess ?fee ?tfee ?wheelchair ?twheelchair ?changing ?baby ?tchanging ?key ?locked ?unisex ?gseg ?hours WHERE {
+  { ?osm osmkey:amenity "toilets" . BIND("toilets" AS ?amenity) } UNION { ?osm osmkey:toilets "yes" . BIND("yes" AS ?toilets) }
+  ?osm geo:hasGeometry/geo:asWKT ?wkt .
+  OPTIONAL { ?osm osmkey:name ?name } OPTIONAL { ?osm osmkey:brand ?brand }
+  OPTIONAL { ?osm osmkey:access ?access } OPTIONAL { ?osm <https://www.openstreetmap.org/wiki/Key:toilets:access> ?taccess }
+  OPTIONAL { ?osm osmkey:fee ?fee } OPTIONAL { ?osm <https://www.openstreetmap.org/wiki/Key:toilets:fee> ?tfee }
+  OPTIONAL { ?osm osmkey:wheelchair ?wheelchair } OPTIONAL { ?osm <https://www.openstreetmap.org/wiki/Key:toilets:wheelchair> ?twheelchair }
+  OPTIONAL { ?osm osmkey:changing_table ?changing } OPTIONAL { ?osm osmkey:baby_changing ?baby } OPTIONAL { ?osm <https://www.openstreetmap.org/wiki/Key:toilets:changing_table> ?tchanging }
+  OPTIONAL { ?osm <https://www.openstreetmap.org/wiki/Key:toilets:key> ?key } OPTIONAL { ?osm osmkey:locked ?locked }
+  OPTIONAL { ?osm osmkey:unisex ?unisex } OPTIONAL { ?osm osmkey:gender_segregated ?gseg }
+  OPTIONAL { ?osm osmkey:opening_hours ?hours }
+}
