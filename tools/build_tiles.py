@@ -20,7 +20,8 @@ Record layout (array, to keep tiles small):
   wheelchair "y" | "l" | "n" | "" changing "y" | "n" | ""   unisex 1 | 0 | null
   access    "p" public/yes | "c" customers | "x" private/no | ""   hours: raw opening_hours or ""
 
-Usage:  python3 build_tiles.py [--chunk 10] [--only lat0,lng0,lat1,lng1]
+Usage:  python3 build_tiles.py --qlever out/qlever.tsv   (fast path; refresh.sh does the export)
+        python3 build_tiles.py [--chunk 10] [--only lat0,lng0,lat1,lng1]   (Overpass fallback, slow)
 Resumable: finished chunks are cached in out/chunks/.
 """
 import argparse, hashlib, json, math, os, sys, time, urllib.parse, urllib.request
